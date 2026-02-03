@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Will You Be My Valentine?</title>
-
 <style>
 body {
     display: flex;
@@ -16,20 +15,16 @@ body {
     font-family: Arial, sans-serif;
     flex-direction: column;
 }
-
 .container {
     text-align: center;
 }
-
 h1 {
     font-size: 2.5em;
     color: #d32f2f;
 }
-
 .buttons {
     margin-top: 20px;
 }
-
 .yes-button {
     font-size: 1.5em;
     padding: 10px 20px;
@@ -40,7 +35,6 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
 }
-
 .no-button {
     font-size: 1.5em;
     padding: 10px 20px;
@@ -50,7 +44,6 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
 }
-
 .gif_container img {
     max-width: 500px;
     width: 100%;
@@ -58,34 +51,56 @@ h1 {
     border-radius: 10px;
     margin-top: 20px;
 }
-
 .header_text {
     font-size: 3em;
     color: #d32f2f;
 }
+.music-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.play-button {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+.play-button:hover {
+    background-color: #b71c1c;
+}
 </style>
-
 </head>
-
 <body>
+<!-- Audio element with the uploaded music -->
+<audio id="backgroundMusic" loop autoplay>
+    <source src="until_i_found_you_1.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<!-- Music control button -->
+<div class="music-controls">
+    <button class="play-button" onclick="toggleMusic()">🎵 Play Music</button>
+</div>
 
 <div class="container" id="main">
-
 <h1>Will you be my Valentine?</h1>
-
 <div class="buttons">
     <button class="yes-button" onclick="handleYesClick()">Yes</button>
     <button class="no-button" onclick="handleNoClick()">No</button>
 </div>
-
 <div class="gif_container">
 <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3pmMG40cWVrMDhtNjVuM3A4dGNxa2g2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VM1fcpu2bKs1e2Kdbj/giphy.gif">
 </div>
-
 </div>
-
 <script>
-
 const messages = [
     "Are you sure?",
     "Really sure??",
@@ -98,23 +113,62 @@ const messages = [
     "Ok fine, I will stop asking...",
     "Just kidding, say yes please! ❤️"
 ];
-
 let messageIndex = 0;
+const music = document.getElementById('backgroundMusic');
+let isPlaying = false;
+
+// Try to autoplay music when page loads
+window.addEventListener('load', function() {
+    music.play().then(() => {
+        isPlaying = true;
+        document.querySelector('.play-button').textContent = '🎵 Pause Music';
+    }).catch(() => {
+        // Autoplay blocked by browser, user needs to click play
+        console.log('Autoplay blocked - please click the play button');
+    });
+});
+
+// Also try to play on first user interaction
+document.addEventListener('click', function playOnFirstClick() {
+    if (!isPlaying) {
+        music.play().then(() => {
+            isPlaying = true;
+            document.querySelector('.play-button').textContent = '🎵 Pause Music';
+        });
+        document.removeEventListener('click', playOnFirstClick);
+    }
+}, { once: true });
+
+function toggleMusic() {
+    const button = document.querySelector('.play-button');
+    if (isPlaying) {
+        music.pause();
+        button.textContent = '🎵 Play Music';
+        isPlaying = false;
+    } else {
+        music.play();
+        button.textContent = '🎵 Pause Music';
+        isPlaying = true;
+    }
+}
 
 function handleNoClick() {
     const noButton = document.querySelector('.no-button');
     const yesButton = document.querySelector('.yes-button');
-
     noButton.textContent = messages[messageIndex];
     messageIndex = (messageIndex + 1) % messages.length;
-
     const currentSize = parseFloat(window.getComputedStyle(yesButton).fontSize);
     yesButton.style.fontSize = `${currentSize * 1.5}px`;
 }
 
 function handleYesClick() {
-
 document.body.innerHTML = `
+<audio id="backgroundMusic" loop autoplay>
+    <source src="until_i_found_you_1.mp3" type="audio/mpeg">
+</audio>
+<div class="music-controls">
+    <button class="play-button" onclick="toggleMusic()">🎵 Pause Music</button>
+</div>
 <div class="container">
     <h1 class="header_text">Knew you would say yes!</h1>
     <div class="gif_container">
@@ -122,12 +176,26 @@ document.body.innerHTML = `
     </div>
 </div>
 `;
+    // Re-initialize music controls after replacing innerHTML
+    const newMusic = document.getElementById('backgroundMusic');
+    isPlaying = true;
+    window.toggleMusic = function() {
+        const button = document.querySelector('.play-button');
+        if (isPlaying) {
+            newMusic.pause();
+            button.textContent = '🎵 Play Music';
+            isPlaying = false;
+        } else {
+            newMusic.play();
+            button.textContent = '🎵 Pause Music';
+            isPlaying = true;
+        }
+    };
 }
-
 </script>
-
 </body>
 </html>
+
 
 
 
